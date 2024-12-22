@@ -1,74 +1,65 @@
 import { useState, useEffect } from "react";
-import { Navigation } from "@/components/Navigation";
 import { PhotoGrid } from "@/components/PhotoGrid";
+import { Navigation } from "@/components/Navigation";
 import { Photo } from "@/lib/types";
 import { toast } from "sonner";
 
-const initialPhotos: Photo[] = [
-  {
-    id: 1,
-    url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
-    title: "Горный пейзаж",
-    author: "John Doe",
-    votes: 15,
-  },
-  {
-    id: 2,
-    url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
-    title: "Закат на море",
-    author: "Jane Smith",
-    votes: 12,
-  },
-  {
-    id: 3,
-    url: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21",
-    title: "Лесное озеро",
-    author: "Mike Johnson",
-    votes: 18,
-  },
-];
-
 const Index = () => {
-  const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
-  const [votedPhotos, setVotedPhotos] = useState<number[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([
+    {
+      id: 1,
+      url: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba",
+      title: "Горный пейзаж",
+      author: "Иван Иванов",
+      votes: 0,
+    },
+    {
+      id: 2,
+      url: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538",
+      title: "Морской закат",
+      author: "Петр Петров",
+      votes: 0,
+    },
+    // Добавьте больше фотографий по необходимости
+  ]);
 
-  // Load voted photos from localStorage on component mount
   useEffect(() => {
-    const savedVotes = localStorage.getItem("votedPhotos");
-    if (savedVotes) {
-      setVotedPhotos(JSON.parse(savedVotes));
+    // Загрузка сохраненных голосов из localStorage
+    const savedPhotos = localStorage.getItem("photos");
+    if (savedPhotos) {
+      setPhotos(JSON.parse(savedPhotos));
     }
   }, []);
 
   const handleVote = (photoId: number) => {
-    // Check if user has already voted for this photo
-    if (votedPhotos.includes(photoId)) {
+    const votedPhotos = localStorage.getItem("votedPhotos");
+    const votedPhotoIds = votedPhotos ? JSON.parse(votedPhotos) : [];
+
+    if (votedPhotoIds.includes(photoId)) {
       toast.error("Вы уже голосовали за эту фотографию");
       return;
     }
 
-    // Update photos with new vote
-    setPhotos((prevPhotos) =>
-      prevPhotos.map((photo) =>
-        photo.id === photoId ? { ...photo, votes: photo.votes + 1 } : photo
-      )
+    const updatedPhotos = photos.map((photo) =>
+      photo.id === photoId ? { ...photo, votes: photo.votes + 1 } : photo
     );
 
-    // Save voted photo to localStorage
-    const newVotedPhotos = [...votedPhotos, photoId];
-    setVotedPhotos(newVotedPhotos);
-    localStorage.setItem("votedPhotos", JSON.stringify(newVotedPhotos));
-
-    toast.success("Спасибо за ваш голос!");
+    setPhotos(updatedPhotos);
+    localStorage.setItem("photos", JSON.stringify(updatedPhotos));
+    localStorage.setItem(
+      "votedPhotos",
+      JSON.stringify([...votedPhotoIds, photoId])
+    );
+    toast.success("Ваш голос учтен!");
   };
 
   return (
-    <div className="min-h-screen bg-background text-white">
-      <Navigation />
+    <div className="min-h-screen bg-background">
+      <Navigation photos={photos} />
       <main className="container mx-auto py-8">
-        <h2 className="text-3xl font-bold text-center mb-8">
-          Фотоконкурс: Природа
-        </h2>
+        <h1 className="text-4xl font-bold text-center mb-8 text-white">
+          Фотоконкурс
+        </h1>
         <PhotoGrid photos={photos} onVote={handleVote} />
       </main>
     </div>
