@@ -1,6 +1,14 @@
 import { Navigation } from "@/components/Navigation";
 import { Photo } from "@/lib/types";
 import { useLocation } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const Results = () => {
   const location = useLocation();
@@ -15,29 +23,39 @@ const Results = () => {
         <h2 className="text-3xl font-bold text-center mb-8">
           Результаты голосования
         </h2>
-        <div className="space-y-6">
-          {sortedPhotos.map((photo, index) => (
-            <div
-              key={photo.id}
-              className="flex items-center gap-6 bg-card p-4 rounded-lg"
-            >
-              <span className="text-2xl font-bold text-primary">#{index + 1}</span>
-              <img
-                src={photo.url}
-                alt={photo.title}
-                className="w-32 h-32 object-cover rounded-lg"
-              />
-              <div>
-                <h3 className="text-xl font-semibold">{photo.title}</h3>
-                <p className="text-gray-400">by {photo.author}</p>
-              </div>
-              <div className="ml-auto">
-                <span className="text-2xl font-bold text-primary">
-                  {photo.votes} голосов
-                </span>
-              </div>
-            </div>
-          ))}
+        <div className="bg-card rounded-lg p-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-white w-[100px]">Место</TableHead>
+                <TableHead className="text-white">Фото</TableHead>
+                <TableHead className="text-white">Название</TableHead>
+                <TableHead className="text-white">Автор</TableHead>
+                <TableHead className="text-white text-right">Голоса</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedPhotos.map((photo, index) => (
+                <TableRow key={photo.id}>
+                  <TableCell className="font-medium text-primary">
+                    #{index + 1}
+                  </TableCell>
+                  <TableCell>
+                    <img
+                      src={photo.url}
+                      alt={photo.title}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                  </TableCell>
+                  <TableCell>{photo.title}</TableCell>
+                  <TableCell>{photo.author}</TableCell>
+                  <TableCell className="text-right font-bold text-primary">
+                    {photo.votes}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </main>
     </div>
