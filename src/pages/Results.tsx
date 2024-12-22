@@ -9,6 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const Results = () => {
   const location = useLocation();
@@ -41,11 +46,22 @@ const Results = () => {
                     #{index + 1}
                   </TableCell>
                   <TableCell>
-                    <img
-                      src={photo.url}
-                      alt={photo.title}
-                      className="w-20 h-20 object-cover rounded-lg"
-                    />
+                    <Dialog>
+                      <DialogTrigger>
+                        <img
+                          src={photo.url}
+                          alt={photo.title}
+                          className="w-20 h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                        />
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl">
+                        <img
+                          src={photo.url}
+                          alt={photo.title}
+                          className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+                        />
+                      </DialogContent>
+                    </Dialog>
                   </TableCell>
                   <TableCell>{photo.title}</TableCell>
                   <TableCell>{photo.author}</TableCell>
