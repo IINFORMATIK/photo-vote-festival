@@ -1,5 +1,4 @@
 import { Heart } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 
 interface VoteButtonProps {
   photoId: number;
@@ -8,14 +7,8 @@ interface VoteButtonProps {
 }
 
 export const VoteButton = ({ photoId, votes, onVote }: VoteButtonProps) => {
-  const { toast } = useToast();
-
   const handleVote = () => {
     onVote(photoId);
-    toast({
-      title: "Спасибо за ваш голос!",
-      description: "Ваш голос успешно учтен.",
-    });
   };
 
   return (

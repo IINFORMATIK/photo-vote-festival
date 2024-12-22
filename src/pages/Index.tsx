@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { Photo } from "@/lib/types";
+import { toast } from "sonner";
 
 const initialPhotos: Photo[] = [
   {
@@ -29,13 +30,36 @@ const initialPhotos: Photo[] = [
 
 const Index = () => {
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
+  const [votedPhotos, setVotedPhotos] = useState<number[]>([]);
+
+  // Load voted photos from localStorage on component mount
+  useEffect(() => {
+    const savedVotes = localStorage.getItem("votedPhotos");
+    if (savedVotes) {
+      setVotedPhotos(JSON.parse(savedVotes));
+    }
+  }, []);
 
   const handleVote = (photoId: number) => {
+    // Check if user has already voted for this photo
+    if (votedPhotos.includes(photoId)) {
+      toast.error("Вы уже голосовали за эту фотографию");
+      return;
+    }
+
+    // Update photos with new vote
     setPhotos((prevPhotos) =>
       prevPhotos.map((photo) =>
         photo.id === photoId ? { ...photo, votes: photo.votes + 1 } : photo
       )
     );
+
+    // Save voted photo to localStorage
+    const newVotedPhotos = [...votedPhotos, photoId];
+    setVotedPhotos(newVotedPhotos);
+    localStorage.setItem("votedPhotos", JSON.stringify(newVotedPhotos));
+
+    toast.success("Спасибо за ваш голос!");
   };
 
   return (
