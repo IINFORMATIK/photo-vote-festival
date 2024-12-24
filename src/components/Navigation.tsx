@@ -20,7 +20,7 @@ export const Navigation = ({ photos }: NavigationProps) => {
     <nav className="bg-card p-4">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-xl font-bold text-primary">
-          Photo Contest
+          Фотоконкурс
         </Link>
         <Button
           variant="outline"
