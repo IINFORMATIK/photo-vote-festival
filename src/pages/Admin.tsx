@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CATEGORIES } from "@/lib/constants";
 import { Photo } from "@/lib/types";
@@ -9,12 +10,21 @@ import { AdminPhotoForm } from "@/components/AdminPhotoForm";
 
 const Admin = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [photos, setPhotos] = useState<Photo[]>(() => {
     const savedPhotos = localStorage.getItem("photos");
     return savedPhotos ? JSON.parse(savedPhotos) : [];
   });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem("adminAuthenticated") === "true";
+    if (!isAuthenticated) {
+      navigate("/admin-login");
+    }
+  }, [navigate]);
 
   const filteredPhotos = selectedCategory
     ? photos.filter((photo) => photo.category === selectedCategory)

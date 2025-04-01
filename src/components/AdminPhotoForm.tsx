@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { LucideIcon } from "lucide-react";
+import { Upload, LucideIcon } from "lucide-react";
 import { Photo } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 interface Category {
   id: string;
@@ -24,7 +24,6 @@ interface AdminPhotoFormProps {
 type FormValues = {
   title: string;
   author: string;
-  url: string;
   category: string;
 };
 
@@ -35,12 +34,14 @@ export const AdminPhotoForm = ({
   onCancelEdit,
 }: AdminPhotoFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const { toast } = useToast();
   
   const form = useForm<FormValues>({
     defaultValues: {
       title: "",
       author: "",
-      url: "",
       category: categories[0].id,
     },
   });
@@ -50,42 +51,95 @@ export const AdminPhotoForm = ({
       form.reset({
         title: editingPhoto.title,
         author: editingPhoto.author,
-        url: editingPhoto.url,
         category: editingPhoto.category,
       });
+      setPreviewUrl(editingPhoto.url);
     } else {
       form.reset({
         title: "",
         author: "",
-        url: "",
         category: categories[0].id,
       });
+      setPreviewUrl(null);
+      setSelectedFile(null);
     }
   }, [editingPhoto, categories, form]);
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "Слишком большой файл",
+          description: "Максимальный размер файла 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setSelectedFile(file);
+      const fileUrl = URL.createObjectURL(file);
+      setPreviewUrl(fileUrl);
+    }
+  };
   
   const handleSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
+      // For new photo or editing photo but changing the image
+      let imageUrl = editingPhoto?.url || "";
+      
+      if (selectedFile) {
+        // Convert file to base64 string for storage in localStorage
+        const reader = new FileReader();
+        const base64String = await new Promise<string>((resolve) => {
+          reader.onloadend = () => {
+            const base64 = reader.result as string;
+            resolve(base64);
+          };
+          reader.readAsDataURL(selectedFile);
+        });
+        
+        imageUrl = base64String;
+      }
+      
+      if (!imageUrl && !editingPhoto) {
+        toast({
+          title: "Нужно выбрать фото",
+          description: "Пожалуйста, загрузите фотографию",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      
       const photoData: Photo = {
         id: editingPhoto ? editingPhoto.id : Date.now(),
         title: data.title,
         author: data.author,
-        url: data.url,
+        url: imageUrl,
         category: data.category,
         votes: editingPhoto ? editingPhoto.votes : 0,
       };
       
       onSubmit(photoData);
+      
       if (!editingPhoto) {
         form.reset({
           title: "",
           author: "",
-          url: "",
           category: categories[0].id,
         });
+        setSelectedFile(null);
+        setPreviewUrl(null);
       }
     } catch (error) {
       console.error("Error submitting photo:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить фото",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -99,6 +153,38 @@ export const AdminPhotoForm = ({
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <div className="mb-4">
+            <p className="mb-2">Фотография</p>
+            <div className="flex flex-col items-center">
+              {previewUrl ? (
+                <div className="mb-4 w-full">
+                  <img 
+                    src={previewUrl} 
+                    alt="Preview" 
+                    className="w-full h-40 object-cover rounded-md" 
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-40 bg-gray-700 rounded-md flex items-center justify-center mb-4">
+                  <p className="text-gray-400">Нет выбранного изображения</p>
+                </div>
+              )}
+              
+              <label className="w-full">
+                <div className="flex items-center justify-center gap-2 p-2 border-2 border-dashed border-gray-500 rounded-md cursor-pointer hover:bg-gray-700">
+                  <Upload size={20} />
+                  <span>Выбрать файл</span>
+                </div>
+                <Input 
+                  type="file" 
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+          </div>
+          
           <FormField
             control={form.control}
             name="title"
@@ -121,20 +207,6 @@ export const AdminPhotoForm = ({
                 <FormLabel>Автор</FormLabel>
                 <FormControl>
                   <Input placeholder="Имя автора" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="url"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>URL изображения</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://example.com/image.jpg" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

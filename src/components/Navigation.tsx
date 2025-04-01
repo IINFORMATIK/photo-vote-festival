@@ -13,9 +13,16 @@ export const Navigation = ({ photos }: NavigationProps) => {
   const navigate = useNavigate();
   const isResultsPage = location.pathname === "/results";
   const isAdminPage = location.pathname === "/admin";
+  const isAdminLoginPage = location.pathname === "/admin-login";
+  const isAdmin = localStorage.getItem("adminAuthenticated") === "true";
 
   const handleResultsClick = () => {
     navigate("/results", { state: { photos } });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuthenticated");
+    navigate("/");
   };
 
   return (
@@ -25,7 +32,7 @@ export const Navigation = ({ photos }: NavigationProps) => {
           Фотоконкурс
         </Link>
         <div className="flex gap-2">
-          {!isAdminPage && (
+          {!isAdminPage && !isAdminLoginPage && (
             <Button
               variant="outline"
               onClick={handleResultsClick}
@@ -35,18 +42,30 @@ export const Navigation = ({ photos }: NavigationProps) => {
             </Button>
           )}
           
-          {!isAdminPage ? (
-            <Link to="/admin">
-              <Button variant="default">
-                Админ панель
-              </Button>
-            </Link>
+          {isAdmin ? (
+            <>
+              {!isAdminPage ? (
+                <Link to="/admin">
+                  <Button variant="default">
+                    Админ панель
+                  </Button>
+                </Link>
+              ) : (
+                <Button variant="outline" onClick={handleLogout}>
+                  Выйти
+                </Button>
+              )}
+            </>
           ) : (
-            <Link to="/">
-              <Button variant="outline">
-                Вернуться на сайт
-              </Button>
-            </Link>
+            <>
+              {!isAdminLoginPage && (
+                <Link to="/admin-login">
+                  <Button variant="default">
+                    Админ панель
+                  </Button>
+                </Link>
+              )}
+            </>
           )}
         </div>
       </div>
