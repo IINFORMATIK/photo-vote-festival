@@ -1,11 +1,11 @@
 
-import { City, Camera, Atom, Users, Cat, Sun, Image, Zap } from "lucide-react";
+import { Building2, Zap, Atom, Camera, Users, Cat, Sun, Image } from "lucide-react";
 
 export const CATEGORIES = [
   {
     id: "city",
     name: "ГОРОД РАМЕНСКОЕ",
-    icon: City,
+    icon: Building2,
   },
   {
     id: "emotions",
