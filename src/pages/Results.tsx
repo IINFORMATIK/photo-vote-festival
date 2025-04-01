@@ -1,6 +1,10 @@
+
+import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Photo } from "@/lib/types";
 import { useLocation } from "react-router-dom";
+import { CATEGORIES } from "@/lib/constants";
+import { CategoryFilter } from "@/components/CategoryFilter";
 import {
   Table,
   TableBody,
@@ -18,8 +22,19 @@ import {
 const Results = () => {
   const location = useLocation();
   const photos: Photo[] = location.state?.photos || [];
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const sortedPhotos = [...photos].sort((a, b) => b.votes - a.votes);
+  // Находим название категории по ID
+  const getCategoryName = (categoryId: string) => {
+    const category = CATEGORIES.find(cat => cat.id === categoryId);
+    return category ? category.name : "Неизвестная категория";
+  };
+
+  const filteredPhotos = selectedCategory 
+    ? photos.filter(photo => photo.category === selectedCategory) 
+    : photos;
+
+  const sortedPhotos = [...filteredPhotos].sort((a, b) => b.votes - a.votes);
 
   return (
     <div className="min-h-screen bg-background text-white">
@@ -28,6 +43,13 @@ const Results = () => {
         <h2 className="text-3xl font-bold text-center mb-8">
           Результаты голосования
         </h2>
+        
+        <CategoryFilter 
+          categories={CATEGORIES} 
+          selectedCategory={selectedCategory} 
+          onSelectCategory={setSelectedCategory} 
+        />
+        
         <div className="bg-card rounded-lg p-4">
           <Table>
             <TableHeader>
@@ -36,6 +58,7 @@ const Results = () => {
                 <TableHead className="text-white">Фото</TableHead>
                 <TableHead className="text-white">Название</TableHead>
                 <TableHead className="text-white">Автор</TableHead>
+                <TableHead className="text-white">Категория</TableHead>
                 <TableHead className="text-white text-right">Голоса</TableHead>
               </TableRow>
             </TableHeader>
@@ -65,6 +88,7 @@ const Results = () => {
                   </TableCell>
                   <TableCell>{photo.title}</TableCell>
                   <TableCell>{photo.author}</TableCell>
+                  <TableCell>{getCategoryName(photo.category)}</TableCell>
                   <TableCell className="text-right font-bold text-primary">
                     {photo.votes}
                   </TableCell>
