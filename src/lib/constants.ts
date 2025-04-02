@@ -1,5 +1,5 @@
 
-import { Building2, Zap, Atom, Camera, Users, Cat, Sun, Image } from "lucide-react";
+import { Building2, Camera, Atom, Users, Cat, Sun, Image, Zap } from "lucide-react";
 
 export const CATEGORIES = [
   {
