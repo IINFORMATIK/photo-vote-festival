@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -23,7 +24,10 @@ const Admin = () => {
     return savedPhotos ? JSON.parse(savedPhotos) : [];
   });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState<number>(() => {
+    const savedYear = localStorage.getItem("selectedYear");
+    return savedYear ? parseInt(savedYear) : new Date().getFullYear();
+  });
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
 
   useEffect(() => {

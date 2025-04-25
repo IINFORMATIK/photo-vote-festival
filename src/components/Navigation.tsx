@@ -23,6 +23,7 @@ export const Navigation = ({ photos }: NavigationProps) => {
   const isAdminPage = location.pathname === "/admin";
   const isAdminLoginPage = location.pathname === "/admin-login";
   const isAdmin = localStorage.getItem("adminAuthenticated") === "true";
+  const availableYears = [2024, 2025];
 
   const handleResultsClick = () => {
     navigate("/results", { state: { photos } });
@@ -31,6 +32,13 @@ export const Navigation = ({ photos }: NavigationProps) => {
   const handleLogout = () => {
     localStorage.removeItem("adminAuthenticated");
     navigate("/");
+  };
+
+  const handleYearSelect = (year: number) => {
+    // Store selected year in localStorage
+    localStorage.setItem("selectedYear", year.toString());
+    // Refresh the page to show photos for selected year
+    window.location.reload();
   };
 
   return (
@@ -43,24 +51,18 @@ export const Navigation = ({ photos }: NavigationProps) => {
           <Menubar className="border-none bg-transparent">
             <MenubarMenu>
               <MenubarTrigger className="font-medium text-sm cursor-pointer data-[state=open]:bg-accent/50">
-                О конкурсе <ChevronDown className="h-4 w-4 ml-1" />
+                Год конкурса <ChevronDown className="h-4 w-4 ml-1" />
               </MenubarTrigger>
               <MenubarContent className="bg-card border border-border min-w-[200px]">
-                <MenubarItem>
-                  <Link to="/" className="flex w-full">
-                    Главная
-                  </Link>
-                </MenubarItem>
-                <MenubarItem>
-                  <Link to="/rules" className="flex w-full">
-                    Правила конкурса
-                  </Link>
-                </MenubarItem>
-                <MenubarItem>
-                  <Link to="/contact" className="flex w-full">
-                    Контакты
-                  </Link>
-                </MenubarItem>
+                {availableYears.map((year) => (
+                  <MenubarItem
+                    key={year}
+                    onClick={() => handleYearSelect(year)}
+                    className="cursor-pointer"
+                  >
+                    {year} год
+                  </MenubarItem>
+                ))}
               </MenubarContent>
             </MenubarMenu>
           </Menubar>
