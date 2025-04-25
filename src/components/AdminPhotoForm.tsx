@@ -120,6 +120,7 @@ export const AdminPhotoForm = ({
         url: imageUrl,
         category: data.category,
         votes: editingPhoto ? editingPhoto.votes : 0,
+        year: editingPhoto ? editingPhoto.year : new Date().getFullYear(), // Add the year property
       };
       
       onSubmit(photoData);
