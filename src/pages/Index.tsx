@@ -5,7 +5,6 @@ import { Photo } from "@/lib/types";
 import { toast } from "sonner";
 import { CATEGORIES } from "@/lib/constants";
 import { CategoryFilter } from "@/components/CategoryFilter";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@radix-ui/react-select";
 
 const Index = () => {
   const [photos, setPhotos] = useState<Photo[]>(() => {
@@ -148,26 +147,6 @@ const Index = () => {
         </h1>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <Select
-            value={selectedYear.toString()}
-            onValueChange={(value) => setSelectedYear(Number(value))}
-          >
-            <SelectTrigger className="w-[180px] bg-gray-800 text-white">
-              <SelectValue placeholder="Выберите год" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-800 text-white">
-              {availableYears.map((year) => (
-                <SelectItem 
-                  key={year} 
-                  value={year.toString()}
-                  className="hover:bg-gray-700"
-                >
-                  {year} год
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           <CategoryFilter 
             categories={CATEGORIES} 
             selectedCategory={selectedCategory} 
