@@ -7,12 +7,13 @@ import { Photo } from "@/lib/types";
 import { Navigation } from "@/components/Navigation";
 import { AdminPhotoList } from "@/components/AdminPhotoList";
 import { AdminPhotoForm } from "@/components/AdminPhotoForm";
+import { compressImage } from "@/lib/imageUtils";
 
 const Admin = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [photos, setPhotos] = useState<Photo[]>(() => {
-    const savedPhotos = localStorage.getItem("photos");
+    const savedPhotos = localStorage.getItem("adminPhotos") || localStorage.getItem("photos");
     return savedPhotos ? JSON.parse(savedPhotos) : [];
   });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -26,14 +27,16 @@ const Admin = () => {
     }
   }, [navigate]);
 
-  const filteredPhotos = selectedCategory
-    ? photos.filter((photo) => photo.category === selectedCategory)
-    : photos;
+  // Save photos to both admin and public storage
+  const savePhotos = (newPhotos: Photo[]) => {
+    localStorage.setItem("adminPhotos", JSON.stringify(newPhotos));
+    localStorage.setItem("photos", JSON.stringify(newPhotos));
+  };
 
-  const handleAddPhoto = (photo: Photo) => {
+  const handleAddPhoto = async (photo: Photo) => {
     const newPhotos = [...photos, photo];
     setPhotos(newPhotos);
-    localStorage.setItem("photos", JSON.stringify(newPhotos));
+    savePhotos(newPhotos);
     toast({
       title: "Фото добавлено",
       description: `Фото "${photo.title}" успешно добавлено`,
@@ -45,7 +48,7 @@ const Admin = () => {
       photo.id === updatedPhoto.id ? updatedPhoto : photo
     );
     setPhotos(newPhotos);
-    localStorage.setItem("photos", JSON.stringify(newPhotos));
+    savePhotos(newPhotos);
     setEditingPhoto(null);
     toast({
       title: "Фото обновлено",
@@ -56,7 +59,7 @@ const Admin = () => {
   const handleDeletePhoto = (photoId: number) => {
     const newPhotos = photos.filter((photo) => photo.id !== photoId);
     setPhotos(newPhotos);
-    localStorage.setItem("photos", JSON.stringify(newPhotos));
+    savePhotos(newPhotos);
     toast({
       title: "Фото удалено",
       description: "Фото успешно удалено",
