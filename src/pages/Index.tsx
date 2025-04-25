@@ -5,6 +5,7 @@ import { Photo } from "@/lib/types";
 import { toast } from "sonner";
 import { CATEGORIES } from "@/lib/constants";
 import { CategoryFilter } from "@/components/CategoryFilter";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@radix-ui/react-select";
 
 const Index = () => {
   const [photos, setPhotos] = useState<Photo[]>(() => {
@@ -17,6 +18,7 @@ const Index = () => {
         author: "Иван Иванов",
         votes: 0,
         category: "nature",
+        year: 2023,
       },
       {
         id: 2,
@@ -25,6 +27,7 @@ const Index = () => {
         author: "Петр Петров",
         votes: 0,
         category: "nature",
+        year: 2023,
       },
       {
         id: 3,
@@ -33,6 +36,7 @@ const Index = () => {
         author: "Анна Смирнова",
         votes: 0,
         category: "city",
+        year: 2023,
       },
       {
         id: 4,
@@ -41,6 +45,7 @@ const Index = () => {
         author: "Михаил Кузнецов",
         votes: 0,
         category: "retro",
+        year: 2023,
       },
       {
         id: 5,
@@ -49,6 +54,7 @@ const Index = () => {
         author: "Елена Попова",
         votes: 0,
         category: "science",
+        year: 2023,
       },
       {
         id: 6,
@@ -57,6 +63,7 @@ const Index = () => {
         author: "Сергей Васильев",
         votes: 0,
         category: "family",
+        year: 2023,
       },
       {
         id: 7,
@@ -65,6 +72,7 @@ const Index = () => {
         author: "Дарья Козлова",
         votes: 0,
         category: "animals",
+        year: 2023,
       },
       {
         id: 8,
@@ -73,6 +81,7 @@ const Index = () => {
         author: "Артем Морозов",
         votes: 0,
         category: "emotions",
+        year: 2023,
       },
       {
         id: 9,
@@ -81,19 +90,28 @@ const Index = () => {
         author: "Ольга Соколова",
         votes: 0,
         category: "free",
+        year: 2023,
       },
     ];
   });
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   useEffect(() => {
-    // Загрузка сохраненных голосов из localStorage
     const savedPhotos = localStorage.getItem("photos");
     if (savedPhotos) {
       setPhotos(JSON.parse(savedPhotos));
     }
   }, []);
+
+  const availableYears = Array.from(
+    new Set(photos.map((photo) => photo.year || new Date().getFullYear()))
+  ).sort((a, b) => b - a);
+
+  if (availableYears.length === 0) {
+    availableYears.push(new Date().getFullYear());
+  }
 
   const handleVote = (photoId: number) => {
     const votedPhotos = localStorage.getItem("votedPhotos");
@@ -117,9 +135,9 @@ const Index = () => {
     toast.success("Ваш голос учтен!");
   };
 
-  const filteredPhotos = selectedCategory 
-    ? photos.filter(photo => photo.category === selectedCategory) 
-    : photos;
+  const filteredPhotos = photos
+    .filter(photo => !selectedCategory || photo.category === selectedCategory)
+    .filter(photo => photo.year === selectedYear);
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,11 +146,35 @@ const Index = () => {
         <h1 className="text-4xl font-bold text-center mb-8 text-white">
           Фотоконкурс МОУ Раменская СОШ №9
         </h1>
-        <CategoryFilter 
-          categories={CATEGORIES} 
-          selectedCategory={selectedCategory} 
-          onSelectCategory={setSelectedCategory} 
-        />
+
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <Select
+            value={selectedYear.toString()}
+            onValueChange={(value) => setSelectedYear(Number(value))}
+          >
+            <SelectTrigger className="w-[180px] bg-gray-800 text-white">
+              <SelectValue placeholder="Выберите год" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-800 text-white">
+              {availableYears.map((year) => (
+                <SelectItem 
+                  key={year} 
+                  value={year.toString()}
+                  className="hover:bg-gray-700"
+                >
+                  {year} год
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <CategoryFilter 
+            categories={CATEGORIES} 
+            selectedCategory={selectedCategory} 
+            onSelectCategory={setSelectedCategory} 
+          />
+        </div>
+
         <PhotoGrid photos={filteredPhotos} onVote={handleVote} />
       </main>
     </div>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Photo } from "@/lib/types";
@@ -18,21 +17,30 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 const Results = () => {
   const location = useLocation();
   const photos: Photo[] = location.state?.photos || [];
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
-  // Находим название категории по ID
+  const availableYears = Array.from(
+    new Set(photos.map((photo) => photo.year || new Date().getFullYear()))
+  ).sort((a, b) => b - a);
+
+  if (availableYears.length === 0) {
+    availableYears.push(new Date().getFullYear());
+  }
+
   const getCategoryName = (categoryId: string) => {
     const category = CATEGORIES.find(cat => cat.id === categoryId);
     return category ? category.name : "Неизвестная категория";
   };
 
-  const filteredPhotos = selectedCategory 
-    ? photos.filter(photo => photo.category === selectedCategory) 
-    : photos;
+  const filteredPhotos = photos
+    .filter(photo => !selectedCategory || photo.category === selectedCategory)
+    .filter(photo => photo.year === selectedYear);
 
   const sortedPhotos = [...filteredPhotos].sort((a, b) => b.votes - a.votes);
 
@@ -44,11 +52,33 @@ const Results = () => {
           Результаты голосования
         </h2>
         
-        <CategoryFilter 
-          categories={CATEGORIES} 
-          selectedCategory={selectedCategory} 
-          onSelectCategory={setSelectedCategory} 
-        />
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <Select
+            value={selectedYear.toString()}
+            onValueChange={(value) => setSelectedYear(Number(value))}
+          >
+            <SelectTrigger className="w-[180px] bg-gray-800 text-white">
+              <SelectValue placeholder="Выберите год" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-800 text-white">
+              {availableYears.map((year) => (
+                <SelectItem 
+                  key={year} 
+                  value={year.toString()}
+                  className="hover:bg-gray-700"
+                >
+                  {year} год
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <CategoryFilter 
+            categories={CATEGORIES} 
+            selectedCategory={selectedCategory} 
+            onSelectCategory={setSelectedCategory} 
+          />
+        </div>
         
         <div className="bg-card rounded-lg p-4">
           <Table>

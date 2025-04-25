@@ -6,4 +6,5 @@ export interface Photo {
   author: string;
   votes: number;
   category: string;
+  year: number;
 }

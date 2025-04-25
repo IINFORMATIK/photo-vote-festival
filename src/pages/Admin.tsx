@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +7,13 @@ import { Navigation } from "@/components/Navigation";
 import { AdminPhotoList } from "@/components/AdminPhotoList";
 import { AdminPhotoForm } from "@/components/AdminPhotoForm";
 import { compressImage } from "@/lib/imageUtils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Admin = () => {
   const { toast } = useToast();
@@ -17,9 +23,9 @@ const Admin = () => {
     return savedPhotos ? JSON.parse(savedPhotos) : [];
   });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
 
-  // Check if user is authenticated
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("adminAuthenticated") === "true";
     if (!isAuthenticated) {
@@ -27,14 +33,14 @@ const Admin = () => {
     }
   }, [navigate]);
 
-  // Save photos to both admin and public storage
   const savePhotos = (newPhotos: Photo[]) => {
     localStorage.setItem("adminPhotos", JSON.stringify(newPhotos));
     localStorage.setItem("photos", JSON.stringify(newPhotos));
   };
 
   const handleAddPhoto = async (photo: Photo) => {
-    const newPhotos = [...photos, photo];
+    const photoWithYear = { ...photo, year: selectedYear };
+    const newPhotos = [...photos, photoWithYear];
     setPhotos(newPhotos);
     savePhotos(newPhotos);
     toast({
@@ -74,16 +80,45 @@ const Admin = () => {
     setEditingPhoto(null);
   };
 
-  // Add this code to filter photos based on selected category
-  const filteredPhotos = selectedCategory 
-    ? photos.filter(photo => photo.category === selectedCategory) 
-    : photos;
+  const availableYears = Array.from(
+    new Set(photos.map((photo) => photo.year || new Date().getFullYear()))
+  ).sort((a, b) => b - a);
+
+  if (availableYears.length === 0) {
+    availableYears.push(new Date().getFullYear());
+  }
+
+  const filteredPhotos = photos
+    .filter(photo => !selectedCategory || photo.category === selectedCategory)
+    .filter(photo => photo.year === selectedYear);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Navigation />
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Панель администратора</h1>
+        
+        <div className="mb-6">
+          <Select
+            value={selectedYear.toString()}
+            onValueChange={(value) => setSelectedYear(Number(value))}
+          >
+            <SelectTrigger className="w-[180px] bg-gray-800 text-white">
+              <SelectValue placeholder="Выберите год" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-800 text-white">
+              {availableYears.map((year) => (
+                <SelectItem 
+                  key={year} 
+                  value={year.toString()}
+                  className="hover:bg-gray-700"
+                >
+                  {year} год
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
