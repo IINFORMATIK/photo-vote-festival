@@ -74,6 +74,11 @@ const Admin = () => {
     setEditingPhoto(null);
   };
 
+  // Add this code to filter photos based on selected category
+  const filteredPhotos = selectedCategory 
+    ? photos.filter(photo => photo.category === selectedCategory) 
+    : photos;
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Navigation />
