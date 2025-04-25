@@ -3,6 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useLocation } from "react-router-dom";
 import { Photo } from "@/lib/types";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import { ChevronDown } from "lucide-react";
 
 interface NavigationProps {
   photos?: Photo[];
@@ -28,9 +36,36 @@ export const Navigation = ({ photos }: NavigationProps) => {
   return (
     <nav className="bg-card p-4">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold text-primary">
-          Фотоконкурс
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/" className="text-xl font-bold text-primary">
+            Фотоконкурс
+          </Link>
+          <Menubar className="border-none bg-transparent">
+            <MenubarMenu>
+              <MenubarTrigger className="font-medium text-sm cursor-pointer data-[state=open]:bg-accent/50">
+                О конкурсе <ChevronDown className="h-4 w-4 ml-1" />
+              </MenubarTrigger>
+              <MenubarContent className="bg-card border border-border min-w-[200px]">
+                <MenubarItem>
+                  <Link to="/" className="flex w-full">
+                    Главная
+                  </Link>
+                </MenubarItem>
+                <MenubarItem>
+                  <Link to="/rules" className="flex w-full">
+                    Правила конкурса
+                  </Link>
+                </MenubarItem>
+                <MenubarItem>
+                  <Link to="/contact" className="flex w-full">
+                    Контакты
+                  </Link>
+                </MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+          </Menubar>
+        </div>
+
         <div className="flex gap-2">
           {!isAdminPage && !isAdminLoginPage && (
             <Button
