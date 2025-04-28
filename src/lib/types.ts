@@ -7,4 +7,5 @@ export interface Photo {
   votes: number;
   category: string;
   year: number;
+  file?: File;
 }

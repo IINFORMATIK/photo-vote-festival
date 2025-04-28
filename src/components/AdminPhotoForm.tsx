@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Upload, LucideIcon } from "lucide-react";
@@ -86,44 +85,18 @@ export const AdminPhotoForm = ({
   const handleSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
-      // For new photo or editing photo but changing the image
-      let imageUrl = editingPhoto?.url || "";
-      
-      if (selectedFile) {
-        // Convert file to base64 string for storage in localStorage
-        const reader = new FileReader();
-        const base64String = await new Promise<string>((resolve) => {
-          reader.onloadend = () => {
-            const base64 = reader.result as string;
-            resolve(base64);
-          };
-          reader.readAsDataURL(selectedFile);
-        });
-        
-        imageUrl = base64String;
-      }
-      
-      if (!imageUrl && !editingPhoto) {
-        toast({
-          title: "Нужно выбрать фото",
-          description: "Пожалуйста, загрузите фотографию",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-      
       const photoData: Photo = {
         id: editingPhoto ? editingPhoto.id : Date.now(),
         title: data.title,
         author: data.author,
-        url: imageUrl,
         category: data.category,
         votes: editingPhoto ? editingPhoto.votes : 0,
-        year: editingPhoto ? editingPhoto.year : new Date().getFullYear(), // Add the year property
+        url: previewUrl || '',
+        year: editingPhoto ? editingPhoto.year : new Date().getFullYear(),
+        file: selectedFile || undefined,
       };
       
-      onSubmit(photoData);
+      await onSubmit(photoData);
       
       if (!editingPhoto) {
         form.reset({
