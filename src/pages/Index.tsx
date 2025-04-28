@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { PhotoGrid } from "@/components/PhotoGrid";
 import { Navigation } from "@/components/Navigation";
@@ -95,7 +96,10 @@ const Index = () => {
   });
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState<number>(() => {
+    const savedYear = localStorage.getItem("selectedYear");
+    return savedYear ? parseInt(savedYear) : 2024;
+  });
 
   useEffect(() => {
     const savedPhotos = localStorage.getItem("photos");

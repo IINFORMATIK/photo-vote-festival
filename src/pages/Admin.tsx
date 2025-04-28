@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -24,9 +23,9 @@ const Admin = () => {
     return savedPhotos ? JSON.parse(savedPhotos) : [];
   });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number>(() => {
+  const [selectedYear] = useState<number>(() => {
     const savedYear = localStorage.getItem("selectedYear");
-    return savedYear ? parseInt(savedYear) : new Date().getFullYear();
+    return savedYear ? parseInt(savedYear) : 2024;
   });
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
 
@@ -84,14 +83,6 @@ const Admin = () => {
     setEditingPhoto(null);
   };
 
-  const availableYears = Array.from(
-    new Set(photos.map((photo) => photo.year || new Date().getFullYear()))
-  ).sort((a, b) => b - a);
-
-  if (availableYears.length === 0) {
-    availableYears.push(new Date().getFullYear());
-  }
-
   const filteredPhotos = photos
     .filter(photo => !selectedCategory || photo.category === selectedCategory)
     .filter(photo => photo.year === selectedYear);
@@ -101,28 +92,6 @@ const Admin = () => {
       <Navigation />
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6">Панель администратора</h1>
-        
-        <div className="mb-6">
-          <Select
-            value={selectedYear.toString()}
-            onValueChange={(value) => setSelectedYear(Number(value))}
-          >
-            <SelectTrigger className="w-[180px] bg-gray-800 text-white">
-              <SelectValue placeholder="Выберите год" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-800 text-white">
-              {availableYears.map((year) => (
-                <SelectItem 
-                  key={year} 
-                  value={year.toString()}
-                  className="hover:bg-gray-700"
-                >
-                  {year} год
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">

@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useLocation } from "react-router-dom";
@@ -35,9 +34,7 @@ export const Navigation = ({ photos }: NavigationProps) => {
   };
 
   const handleYearSelect = (year: number) => {
-    // Store selected year in localStorage
     localStorage.setItem("selectedYear", year.toString());
-    // Refresh the page to show photos for selected year
     window.location.reload();
   };
 

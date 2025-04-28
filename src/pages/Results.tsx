@@ -23,15 +23,10 @@ const Results = () => {
   const location = useLocation();
   const photos: Photo[] = location.state?.photos || [];
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-
-  const availableYears = Array.from(
-    new Set(photos.map((photo) => photo.year || new Date().getFullYear()))
-  ).sort((a, b) => b - a);
-
-  if (availableYears.length === 0) {
-    availableYears.push(new Date().getFullYear());
-  }
+  const [selectedYear] = useState<number>(() => {
+    const savedYear = localStorage.getItem("selectedYear");
+    return savedYear ? parseInt(savedYear) : 2024;
+  });
 
   const getCategoryName = (categoryId: string) => {
     const category = CATEGORIES.find(cat => cat.id === categoryId);
@@ -53,26 +48,6 @@ const Results = () => {
         </h2>
         
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <Select
-            value={selectedYear.toString()}
-            onValueChange={(value) => setSelectedYear(Number(value))}
-          >
-            <SelectTrigger className="w-[180px] bg-gray-800 text-white">
-              <SelectValue placeholder="Выберите год" />
-            </SelectTrigger>
-            <SelectContent className="bg-gray-800 text-white">
-              {availableYears.map((year) => (
-                <SelectItem 
-                  key={year} 
-                  value={year.toString()}
-                  className="hover:bg-gray-700"
-                >
-                  {year} год
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           <CategoryFilter 
             categories={CATEGORIES} 
             selectedCategory={selectedCategory} 
