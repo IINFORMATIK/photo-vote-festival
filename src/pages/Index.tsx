@@ -6,107 +6,35 @@ import { Photo } from "@/lib/types";
 import { toast } from "sonner";
 import { CATEGORIES } from "@/lib/constants";
 import { CategoryFilter } from "@/components/CategoryFilter";
+import { api } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Index = () => {
-  const [photos, setPhotos] = useState<Photo[]>(() => {
-    const savedPhotos = localStorage.getItem("adminPhotos") || localStorage.getItem("photos");
-    return savedPhotos ? JSON.parse(savedPhotos) : [
-      {
-        id: 1,
-        url: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba",
-        title: "Горный пейзаж",
-        author: "Иван Иванов",
-        votes: 0,
-        category: "nature",
-        year: 2023,
-      },
-      {
-        id: 2,
-        url: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538",
-        title: "Морской закат",
-        author: "Петр Петров",
-        votes: 0,
-        category: "nature",
-        year: 2023,
-      },
-      {
-        id: 3,
-        url: "https://images.unsplash.com/photo-1661956602116-aa6865609028",
-        title: "Площадь города",
-        author: "Анна Смирнова",
-        votes: 0,
-        category: "city",
-        year: 2023,
-      },
-      {
-        id: 4,
-        url: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7",
-        title: "Ретро автомобиль",
-        author: "Михаил Кузнецов",
-        votes: 0,
-        category: "retro",
-        year: 2023,
-      },
-      {
-        id: 5,
-        url: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce",
-        title: "Научный эксперимент",
-        author: "Елена Попова",
-        votes: 0,
-        category: "science",
-        year: 2023,
-      },
-      {
-        id: 6,
-        url: "https://images.unsplash.com/photo-1516522973472-f009f23bba59",
-        title: "Семейный отдых",
-        author: "Сергей Васильев",
-        votes: 0,
-        category: "family",
-        year: 2023,
-      },
-      {
-        id: 7,
-        url: "https://images.unsplash.com/photo-1425082661705-1834bfd09dca",
-        title: "Лиса в лесу",
-        author: "Дарья Козлова",
-        votes: 0,
-        category: "animals",
-        year: 2023,
-      },
-      {
-        id: 8,
-        url: "https://images.unsplash.com/photo-1495462911434-be47104d70fa",
-        title: "Радость победы",
-        author: "Артем Морозов",
-        votes: 0,
-        category: "emotions",
-        year: 2023,
-      },
-      {
-        id: 9,
-        url: "https://images.unsplash.com/photo-1526306063970-d5498ad00f1c",
-        title: "Творческий этюд",
-        author: "Ольга Соколова",
-        votes: 0,
-        category: "free",
-        year: 2023,
-      },
-    ];
-  });
-
+  const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number>(() => {
-    const savedYear = localStorage.getItem("selectedYear");
-    return savedYear ? parseInt(savedYear) : 2024;
+  const [selectedYear, setSelectedYear] = useState<number>(2024);
+
+  // Fetch photos from server
+  const { data: photos = [] } = useQuery({
+    queryKey: ['photos'],
+    queryFn: api.getAllPhotos,
   });
 
-  useEffect(() => {
-    const savedPhotos = localStorage.getItem("photos");
-    if (savedPhotos) {
-      setPhotos(JSON.parse(savedPhotos));
-    }
-  }, []);
+  // Vote mutation
+  const voteMutation = useMutation({
+    mutationFn: (photoId: number) => api.votePhoto(photoId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['photos'] });
+      toast.success("Ваш голос учтен!");
+    },
+    onError: (error) => {
+      if (error.message.includes('already voted')) {
+        toast.error("Вы уже голосовали за эту фотографию");
+      } else {
+        toast.error("Ошибка при голосовании");
+      }
+    },
+  });
 
   const availableYears = Array.from(
     new Set(photos.map((photo) => photo.year || new Date().getFullYear()))
@@ -117,25 +45,7 @@ const Index = () => {
   }
 
   const handleVote = (photoId: number) => {
-    const votedPhotos = localStorage.getItem("votedPhotos");
-    const votedPhotoIds = votedPhotos ? JSON.parse(votedPhotos) : [];
-
-    if (votedPhotoIds.includes(photoId)) {
-      toast.error("Вы уже голосовали за эту фотографию");
-      return;
-    }
-
-    const updatedPhotos = photos.map((photo) =>
-      photo.id === photoId ? { ...photo, votes: photo.votes + 1 } : photo
-    );
-
-    setPhotos(updatedPhotos);
-    localStorage.setItem("photos", JSON.stringify(updatedPhotos));
-    localStorage.setItem(
-      "votedPhotos",
-      JSON.stringify([...votedPhotoIds, photoId])
-    );
-    toast.success("Ваш голос учтен!");
+    voteMutation.mutate(photoId);
   };
 
   const filteredPhotos = photos

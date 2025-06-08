@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Photo } from "@/lib/types";
-import { useLocation } from "react-router-dom";
 import { CATEGORIES } from "@/lib/constants";
 import { CategoryFilter } from "@/components/CategoryFilter";
+import { api } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -17,15 +19,15 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 const Results = () => {
-  const location = useLocation();
-  const photos: Photo[] = location.state?.photos || [];
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedYear] = useState<number>(() => {
-    const savedYear = localStorage.getItem("selectedYear");
-    return savedYear ? parseInt(savedYear) : 2024;
+  const [selectedYear] = useState<number>(2024);
+
+  // Fetch photos from server
+  const { data: photos = [] } = useQuery({
+    queryKey: ['photos'],
+    queryFn: api.getAllPhotos,
   });
 
   const getCategoryName = (categoryId: string) => {

@@ -15,17 +15,22 @@ const Admin = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedYear] = useState<number>(() => {
-    const savedYear = localStorage.getItem("selectedYear");
-    return savedYear ? parseInt(savedYear) : 2024;
-  });
+  const [selectedYear] = useState<number>(2024);
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("adminAuthenticated") === "true";
-    if (!isAuthenticated) {
-      navigate("/admin-login");
-    }
+    // Check authentication with server instead of localStorage
+    const checkAuth = async () => {
+      try {
+        const isAuthenticated = await api.checkAuth();
+        if (!isAuthenticated) {
+          navigate("/admin-login");
+        }
+      } catch (error) {
+        navigate("/admin-login");
+      }
+    };
+    checkAuth();
   }, [navigate]);
 
   // Fetch photos

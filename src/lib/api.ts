@@ -1,5 +1,7 @@
 
-const API_BASE_URL = 'http://localhost:3000'; // Change this to your local server URL
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'http://localhost:4080' 
+  : 'http://localhost:4080';
 
 export const api = {
   async getAllPhotos() {
@@ -34,6 +36,14 @@ export const api = {
     return response.json();
   },
 
+  async votePhoto(id: number) {
+    const response = await fetch(`${API_BASE_URL}/photos/${id}/vote`, {
+      method: 'POST',
+    });
+    if (!response.ok) throw new Error('Failed to vote');
+    return response.json();
+  },
+
   async login(password: string) {
     const response = await fetch(`${API_BASE_URL}/admin/login`, {
       method: 'POST',
@@ -44,5 +54,13 @@ export const api = {
     });
     if (!response.ok) throw new Error('Invalid credentials');
     return response.json();
+  },
+
+  async checkAuth() {
+    const response = await fetch(`${API_BASE_URL}/admin/check`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    return response.ok;
   }
 };
