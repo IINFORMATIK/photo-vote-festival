@@ -1,3 +1,4 @@
+
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useLocation } from "react-router-dom";
@@ -10,6 +11,7 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { ChevronDown } from "lucide-react";
+import { api } from "@/lib/api";
 
 interface NavigationProps {
   photos?: Photo[];
@@ -21,21 +23,33 @@ export const Navigation = ({ photos }: NavigationProps) => {
   const isResultsPage = location.pathname === "/results";
   const isAdminPage = location.pathname === "/admin";
   const isAdminLoginPage = location.pathname === "/admin-login";
-  const isAdmin = localStorage.getItem("adminAuthenticated") === "true";
   const availableYears = [2024, 2025];
 
   const handleResultsClick = () => {
     navigate("/results", { state: { photos } });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminAuthenticated");
+  const handleLogout = async () => {
+    try {
+      await api.checkAuth(); // This will handle logout on server side
+    } catch (error) {
+      // Ignore error
+    }
     navigate("/");
   };
 
   const handleYearSelect = (year: number) => {
     localStorage.setItem("selectedYear", year.toString());
     window.location.reload();
+  };
+
+  // Check if user is admin by making API call
+  const checkAdminStatus = async () => {
+    try {
+      return await api.checkAuth();
+    } catch {
+      return false;
+    }
   };
 
   return (
@@ -76,20 +90,10 @@ export const Navigation = ({ photos }: NavigationProps) => {
             </Button>
           )}
           
-          {isAdmin ? (
-            <>
-              {!isAdminPage ? (
-                <Link to="/admin">
-                  <Button variant="default">
-                    Админ панель
-                  </Button>
-                </Link>
-              ) : (
-                <Button variant="outline" onClick={handleLogout}>
-                  Выйти
-                </Button>
-              )}
-            </>
+          {isAdminPage ? (
+            <Button variant="outline" onClick={handleLogout}>
+              Выйти
+            </Button>
           ) : (
             <>
               {!isAdminLoginPage && (

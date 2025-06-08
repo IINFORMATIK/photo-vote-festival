@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Navigation } from "@/components/Navigation";
+import { api } from "@/lib/api";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -13,28 +14,30 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Check if credentials match
-    if (username === "serveradmin" && password === "pass3662") {
-      // Set admin session in localStorage
-      localStorage.setItem("adminAuthenticated", "true");
-      toast({
-        title: "Успешный вход",
-        description: "Вы вошли как администратор",
-      });
-      navigate("/admin");
-    } else {
+    try {
+      if (username === "serveradmin") {
+        await api.login(password);
+        toast({
+          title: "Успешный вход",
+          description: "Вы вошли как администратор",
+        });
+        navigate("/admin");
+      } else {
+        throw new Error("Invalid username");
+      }
+    } catch (error) {
       toast({
         title: "Ошибка входа",
         description: "Неверный логин или пароль",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (

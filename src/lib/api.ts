@@ -1,6 +1,6 @@
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'http://localhost:4080' 
+  ? '/api' 
   : 'http://localhost:4080';
 
 export const api = {
@@ -40,7 +40,10 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/photos/${id}/vote`, {
       method: 'POST',
     });
-    if (!response.ok) throw new Error('Failed to vote');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to vote');
+    }
     return response.json();
   },
 
@@ -51,6 +54,7 @@ export const api = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ password }),
+      credentials: 'include',
     });
     if (!response.ok) throw new Error('Invalid credentials');
     return response.json();

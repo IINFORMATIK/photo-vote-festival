@@ -19,7 +19,7 @@ const Admin = () => {
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
 
   useEffect(() => {
-    // Check authentication with server instead of localStorage
+    // Check authentication with server
     const checkAuth = async () => {
       try {
         const isAuthenticated = await api.checkAuth();
