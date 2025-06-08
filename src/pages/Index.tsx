@@ -37,8 +37,11 @@ const Index = () => {
   });
 
   const availableYears = Array.from(
-    new Set(photos.map((photo) => Number(photo.year) || new Date().getFullYear()))
-  ).sort((a, b) => b - a);
+    new Set(photos.map((photo) => {
+      const year = Number(photo.year);
+      return isNaN(year) ? new Date().getFullYear() : year;
+    }))
+  ).sort((a: number, b: number) => b - a);
 
   if (availableYears.length === 0) {
     availableYears.push(new Date().getFullYear());
