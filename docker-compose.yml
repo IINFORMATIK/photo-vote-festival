@@ -6,28 +6,9 @@ services:
     build: .
     ports:
       - "4000:4000"
-    depends_on:
-      - backend
-    networks:
-      - photo-contest-network
-
-  backend:
-    build: ./backend
-    ports:
-      - "4080:4080"
-    volumes:
-      - ./backend/uploads:/app/uploads
-      - ./backend/data:/app/data
-    environment:
-      - NODE_ENV=production
-      - PORT=4080
     networks:
       - photo-contest-network
 
 networks:
   photo-contest-network:
     driver: bridge
-
-volumes:
-  uploads:
-  data:
