@@ -37,7 +37,7 @@ const Index = () => {
   });
 
   const availableYears = Array.from(
-    new Set(photos.map((photo) => photo.year || new Date().getFullYear()))
+    new Set(photos.map((photo) => Number(photo.year) || new Date().getFullYear()))
   ).sort((a, b) => b - a);
 
   if (availableYears.length === 0) {
@@ -50,13 +50,13 @@ const Index = () => {
 
   const filteredPhotos = photos
     .filter(photo => !selectedCategory || photo.category === selectedCategory)
-    .filter(photo => photo.year === selectedYear);
+    .filter(photo => Number(photo.year) === selectedYear);
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation photos={photos} />
       <main className="container mx-auto py-8">
-        <h1 className="text-4xl font-bold text-center mb-8 text-white">
+        <h1 className="text-4xl font-bold text-center mb-8 text-foreground">
           Фотоконкурс МОУ Раменская СОШ №9
         </h1>
 
