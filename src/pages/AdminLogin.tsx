@@ -18,7 +18,7 @@ const AdminLogin = () => {
     setIsLoading(true);
     
     // Check if credentials match
-    if (username === "admin" && password === "3662") {
+    if (username === "serveradmin" && password === "pass3662") {
       // Set admin session in localStorage
       localStorage.setItem("adminAuthenticated", "true");
       toast({
