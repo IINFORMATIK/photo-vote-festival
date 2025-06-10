@@ -38,6 +38,10 @@ export const getCompressedImageUrl = (originalUrl: string): string => {
     return originalUrl; // Already a base64 image
   }
   
-  // Return original URL without compression parameters for server-hosted images
+  // Ensure the URL starts with /uploads/ for proper nginx routing
+  if (!originalUrl.startsWith('/uploads/') && !originalUrl.startsWith('http')) {
+    return `/uploads/${originalUrl.replace(/^\/+/, '')}`;
+  }
+  
   return originalUrl;
 };

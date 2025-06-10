@@ -1,4 +1,3 @@
-
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
@@ -29,8 +28,25 @@ app.use(session({
   }
 }));
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve uploaded files with proper headers
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res, path) => {
+    // Set proper content type for images
+    if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (path.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (path.endsWith('.gif')) {
+      res.setHeader('Content-Type', 'image/gif');
+    } else if (path.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    }
+    
+    // Enable CORS for images
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+  }
+}));
 
 // Storage configuration for multer
 const storage = multer.diskStorage({
@@ -131,10 +147,11 @@ app.get('/photos', async (req, res) => {
     const photos = await readPhotos();
     const votes = await readVotes();
     
-    // Add vote counts to photos
+    // Add vote counts to photos and ensure proper image URLs
     const photosWithVotes = photos.map(photo => ({
       ...photo,
-      votes: Object.values(votes).filter(vote => vote.photoId === photo.id).length
+      votes: Object.values(votes).filter(vote => vote.photoId === photo.id).length,
+      url: photo.url.startsWith('/uploads/') ? photo.url : `/uploads/${photo.url.replace(/^\/+/, '')}`
     }));
     
     res.json(photosWithVotes);
