@@ -142,7 +142,7 @@ async function writeVotes(votes) {
 // API Routes
 
 // Get all photos
-app.get('/photos', async (req, res) => {
+app.get('/api/photos', async (req, res) => {
   try {
     const photos = await readPhotos();
     const votes = await readVotes();
@@ -162,7 +162,7 @@ app.get('/photos', async (req, res) => {
 });
 
 // Add new photo
-app.post('/photos', upload.single('photo'), async (req, res) => {
+app.post('/api/photos', upload.single('photo'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Photo file is required' });
@@ -196,7 +196,7 @@ app.post('/photos', upload.single('photo'), async (req, res) => {
 });
 
 // Update photo
-app.put('/photos/:id', upload.single('photo'), async (req, res) => {
+app.put('/api/photos/:id', upload.single('photo'), async (req, res) => {
   try {
     const photoId = parseInt(req.params.id);
     const { title, author, category, year } = req.body;
@@ -232,7 +232,7 @@ app.put('/photos/:id', upload.single('photo'), async (req, res) => {
 });
 
 // Delete photo
-app.delete('/photos/:id', async (req, res) => {
+app.delete('/api/photos/:id', async (req, res) => {
   try {
     const photoId = parseInt(req.params.id);
     const photos = await readPhotos();
@@ -253,7 +253,7 @@ app.delete('/photos/:id', async (req, res) => {
 });
 
 // Vote for photo
-app.post('/photos/:id/vote', async (req, res) => {
+app.post('/api/photos/:id/vote', async (req, res) => {
   try {
     const photoId = parseInt(req.params.id);
     const clientId = req.ip || req.connection.remoteAddress;
@@ -281,7 +281,7 @@ app.post('/photos/:id/vote', async (req, res) => {
 });
 
 // Admin login
-app.post('/admin/login', (req, res) => {
+app.post('/api/admin/login', (req, res) => {
   const { password } = req.body;
   
   if (password === 'pass3662') {
@@ -293,7 +293,7 @@ app.post('/admin/login', (req, res) => {
 });
 
 // Check admin authentication
-app.get('/admin/check', (req, res) => {
+app.get('/api/admin/check', (req, res) => {
   if (req.session.isAdmin) {
     res.json({ authenticated: true });
   } else {
@@ -302,7 +302,7 @@ app.get('/admin/check', (req, res) => {
 });
 
 // Admin logout
-app.post('/admin/logout', (req, res) => {
+app.post('/api/admin/logout', (req, res) => {
   req.session.destroy();
   res.json({ message: 'Logged out successfully' });
 });
