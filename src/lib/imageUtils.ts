@@ -8,10 +8,10 @@ export const compressImage = async (file: File): Promise<string> => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // Calculate new dimensions (max 800px width/height while maintaining aspect ratio)
+        // Calculate new dimensions (max 1200px width/height while maintaining aspect ratio)
         let width = img.width;
         let height = img.height;
-        const maxSize = 800;
+        const maxSize = 1200;
         
         if (width > height && width > maxSize) {
           height = Math.round((height * maxSize) / width);
@@ -25,7 +25,7 @@ export const compressImage = async (file: File): Promise<string> => {
         canvas.height = height;
         
         ctx?.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.6)); // Compress with 60% quality
+        resolve(canvas.toDataURL('image/jpeg', 0.8)); // Compress with 80% quality
       };
       img.src = e.target?.result as string;
     };
@@ -38,7 +38,6 @@ export const getCompressedImageUrl = (originalUrl: string): string => {
     return originalUrl; // Already a base64 image
   }
   
-  // For remote URLs, add a compression parameter
-  return `${originalUrl}?w=800&q=60`;
+  // Return original URL without compression parameters for server-hosted images
+  return originalUrl;
 };
-

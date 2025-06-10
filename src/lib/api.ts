@@ -1,17 +1,17 @@
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api' 
+  ? '' 
   : 'http://localhost:4080';
 
 export const api = {
   async getAllPhotos() {
-    const response = await fetch(`${API_BASE_URL}/photos`);
+    const response = await fetch(`${API_BASE_URL}/api/photos`);
     if (!response.ok) throw new Error('Failed to fetch photos');
     return response.json();
   },
 
   async addPhoto(formData: FormData) {
-    const response = await fetch(`${API_BASE_URL}/photos`, {
+    const response = await fetch(`${API_BASE_URL}/api/photos`, {
       method: 'POST',
       body: formData,
     });
@@ -20,7 +20,7 @@ export const api = {
   },
 
   async updatePhoto(id: number, data: FormData) {
-    const response = await fetch(`${API_BASE_URL}/photos/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/photos/${id}`, {
       method: 'PUT',
       body: data,
     });
@@ -29,7 +29,7 @@ export const api = {
   },
 
   async deletePhoto(id: number) {
-    const response = await fetch(`${API_BASE_URL}/photos/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/photos/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Failed to delete photo');
@@ -37,7 +37,7 @@ export const api = {
   },
 
   async votePhoto(id: number) {
-    const response = await fetch(`${API_BASE_URL}/photos/${id}/vote`, {
+    const response = await fetch(`${API_BASE_URL}/api/photos/${id}/vote`, {
       method: 'POST',
     });
     if (!response.ok) {
@@ -48,7 +48,7 @@ export const api = {
   },
 
   async login(password: string) {
-    const response = await fetch(`${API_BASE_URL}/admin/login`, {
+    const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export const api = {
   },
 
   async checkAuth() {
-    const response = await fetch(`${API_BASE_URL}/admin/check`, {
+    const response = await fetch(`${API_BASE_URL}/api/admin/check`, {
       method: 'GET',
       credentials: 'include',
     });
